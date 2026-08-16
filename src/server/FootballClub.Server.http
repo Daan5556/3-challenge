@@ -1,0 +1,53 @@
+@host = http://localhost:5080
+@teamId = 1
+@memberId = 1
+@contributionId = 2
+
+### Dashboard UI
+GET {{host}}/
+Accept: text/html
+
+### Dashboard UI with a status message
+GET {{host}}/?message=HTTP%20test%20successful
+Accept: text/html
+
+### Static dashboard stylesheet
+GET {{host}}/styles.css
+Accept: text/css
+
+### Complete club status as JSON
+GET {{host}}/api/status
+Accept: application/json
+
+### Automatically plan a match
+# Expects a 302 redirect. The planner searches the next 14 days for enough
+# available players and a field without a training or match conflict.
+POST {{host}}/matches/plan
+Content-Type: application/x-www-form-urlencoded
+
+teamId={{teamId}}&opponent=HTTP%20Test%20United
+
+### Generate reminders for overdue contributions
+# Running this more than once on the same day safely creates no duplicates.
+POST {{host}}/reminders
+Content-Type: application/x-www-form-urlencoded
+
+
+### Register a contribution as paid
+# Change contributionId to an unpaid ID returned by GET /api/status.
+POST {{host}}/payments/{{contributionId}}
+Content-Type: application/x-www-form-urlencoded
+
+
+### Assign a member to a team
+POST {{host}}/memberships/{{memberId}}
+Content-Type: application/x-www-form-urlencoded
+
+teamId={{teamId}}
+
+### Remove a member from their team
+# An empty teamId represents an unassigned membership.
+POST {{host}}/memberships/{{memberId}}
+Content-Type: application/x-www-form-urlencoded
+
+teamId=

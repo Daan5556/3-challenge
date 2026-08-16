@@ -1,0 +1,59 @@
+Individuele Opdracht: Slimme Voetbalclub Administratie – Software voor Ledenbeheer en
+Wedstrijdplanning
+Achtergrond
+Een lokale voetbalclub heeft moeite om handmatig het ledenbeheer, de contributie-inning en de
+wedstrijdplanning bij te houden. Daarom willen ze een slimme softwareoplossing die deze processen
+efficiënter maakt. Jij krijgt de opdracht om een eenvoudige softwareoplossing te ontwerpen en een
+werkend prototype te bouwen voor een slim administratiesysteem voor de club.
+Het systeem moet:
+ Ledenregistraties en contributies beheren en automatische herinneringen sturen bij
+achterstallige betalingen.
+ Wedstrijden plannen en rekening houden met beschikbaarheid van spelers en velden.
+ Een database bijhouden van teamindelingen, trainingen en wedstrijden.
+ Een eenvoudige interface bieden voor bestuursleden en trainers om belangrijke informatie in
+te zien en aan te passen.
+Je werkt individueel en doorloopt stap voor stap het ontwikkelproces.
+Opdrachtstappen
+Stap 1: Analyse (Wat moet het systeem doen?)
+ Beschrijf de basisfunctionaliteiten van het systeem.
+ Welke gegevens zijn nodig? Denk aan ledenregistratie, teamindeling, wedstrijdschema’s en
+contributies.
+ Maak een eenvoudig contextdiagram waarin staat welke onderdelen samenwerken (bijv.
+ledenbeheer, wedstrijdplanning, betalingssysteem).
+Oplevering:
+✔ Analyse document
+Stap 2: Conceptueel Model (Welke data slaan we op?)
+ Identificeer belangrijke gegevens en hoe deze met elkaar in verband staan.
+ Teken een ERD (Entity Relationship Diagram) om de structuur van de database weer te geven.
+Oplevering:
+✔ ERD met korte uitleg (max. 1 pagina).
+Stap 3: Databaseontwerp (Hoe slaan we de data op?)
+ Zet het conceptueel model om in tabellen met kolommen en relaties.
+ Schrijf een eenvoudig SQL-script om de database aan te maken.
+ Zorg dat gegevens zoals lidmaatschappen, wedstrijden en betalingen correct worden
+opgeslagen.
+Oplevering:
+✔ SQL-script.
+✔ Datamodel
+✔ Korte uitleg over de tabellen (max. 1 pagina).
+Stap 4: Klassendiagram (Hoe is de code gestructureerd?)
+ Maak een UML klassendiagram waarin duidelijk is welke objecten en methoden nodig zijn.
+Oplevering:
+✔ UML klassendiagram met korte toelichting (max. 1 pagina).
+Stap 5: Werkende applicatie
+Vanuit de leeruitkomsten dien je tenminste 1 web applicatie te realiseren
+Het gebruik van een ORM Frameworks als Entity Framework is niet toegestaan
+Maak een eenvoudig werkend prototype dat:
+✔ Dummy-gegevens genereert (bijv. willekeurige leden, teams en wedstrijden).
+✔ Automatisch wedstrijden inplant en rekening houdt met beschikbaarheid.
+✔ De database bijwerkt met nieuwe betalingen en lidmaatschappen.
+✔ De gebruiker via een eenvoudige Userinterface de status kan bekijken.
+Oplevering:
+✔ Werkende applicatie in de programmeertaal C#.
+✔ Korte uitleg (max. 1 pagina) over de werking en testresultaten.
+Oplevering en Werkwijze:
+ Je werkt individueel aan deze opdracht.
+ Plaats jouw code in git (GitLab @ git.fhict.nl of GitHub – geef belanghebbenden toegang!)
+ Lever je documentatie in middels Portflow
+ Lever jouw code in middels Portflow door een link op te nemen naar de git repository en/of
+een zip-bestand op te leveren
