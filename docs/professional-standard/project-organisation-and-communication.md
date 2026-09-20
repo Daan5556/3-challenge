@@ -1,6 +1,6 @@
-**Author:** Daan Eggen  
-**Date:** 16/08/2026  
-**Version:** 1.0
+**Author:** Daan Eggen\
+**Date:** 20/09/2026\
+**Version:** 1.1
 
 ---
 
@@ -90,6 +90,8 @@ A structured review would use the following agenda:
 | Date | Stakeholder | Observation or request | Priority | Decision | Follow-up |
 | --- | --- | --- | --- | --- | --- |
 | To be completed | To be completed | To be completed | To be agreed | To be recorded | To be assigned |
+
+The supplied LO6/LO7 assessment feedback has been addressed through the [completed repair record](../personal-leadership/personal-leadership-reflection.md#acting-on-feedback-completed-repairs) and the revised [research question and method mapping](exploratory-research-and-reporting.md). These are document repairs; assessor confirmation of their adequacy is still pending.
 
 No completed stakeholder session is claimed in this document. The template makes future feedback traceable and prevents assumptions from being presented as validated user needs.
 

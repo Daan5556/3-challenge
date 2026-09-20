@@ -1,6 +1,6 @@
-**Author:** Daan Eggen  
-**Date:** 16/08/2026  
-**Version:** 1.0
+**Author:** Daan Eggen\
+**Date:** 20/09/2026\
+**Version:** 1.1
 
 ---
 
@@ -27,10 +27,12 @@ Sub-questions:
 
 | DOT area | Method | Reason |
 | --- | --- | --- |
-| Workshop | Query-plan inspection | To observe how SQLite executes important application queries. |
-| Workshop | Static code review | To connect query behavior to the implemented dashboard and planner. |
+| Lab | Query-plan inspection | To observe how SQLite executes important application queries. |
+| Showroom | Static program analysis (self-inspection) | To connect query behavior to the implemented dashboard and planner. |
 | Library | Database indexing principles | To select indexes that match filters, joins and ordering. |
 | Lab | Before-and-after performance test | To validate improvements with representative data before release. |
+
+Query-plan inspection observes execution behaviour and is therefore used as Lab research here. Static self-inspection relates the queries to the code; it is not evidence of an independent peer review. The before-and-after performance test below is planned, not completed. See the [overall research mapping](professional-standard/exploratory-research-and-reporting.md) for SQ4 and the [DOT method catalogue](https://v2.ictresearchmethods.nl/showroom/) for static program analysis.
 
 ## 4. Baseline
 

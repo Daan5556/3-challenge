@@ -1,6 +1,6 @@
-**Author:** Daan Eggen  
-**Date:** 16/08/2026  
-**Version:** 1.0
+**Author:** Daan Eggen\
+**Date:** 20/09/2026\
+**Version:** 1.1
 
 ---
 
@@ -10,32 +10,35 @@
 
 This document explains how exploratory research and reporting were applied during the football club administration project. It shows how questions, methods, evidence and decisions were connected instead of choosing a solution without investigation.
 
-## 2. Research Approach
+## 2. Research Question and DOT Approach
 
-The project used several small investigations because one method could not answer every type of question.
+**Main research question:** How can a C# web prototype support consistent member administration, contribution tracking and conflict-free match planning for the football club described in the assignment, and what evidence is needed to evaluate its suitability?
 
-```mermaid
-flowchart LR
-    Question[Research question] --> Method[Select DOT method]
-    Method --> Evidence[Collect evidence]
-    Evidence --> Compare[Compare options or results]
-    Compare --> Decision[Make a scoped decision]
-    Decision --> Validate[Validate in design or implementation]
-    Validate --> Report[Report result and limitations]
-```
+The intended outcome is a prototype with traceable requirements, justified design choices and repeatable checks. Demonstrated improvement in a real club's administration would additionally require user evaluation; it cannot be inferred from implementation alone.
 
-The DOT Framework was used to distinguish research in the problem context, existing knowledge and practical experimentation.
+The DOT framework distinguishes five strategies: **Field** investigates the application context, **Library** studies existing knowledge, **Workshop** explores possible solutions, **Lab** tests their behaviour, and **Showroom** evaluates the work against existing work or expert judgement. A strategy explains the purpose of research; a method describes the activity used to obtain evidence. Strategies can be combined and revisited rather than treated as fixed project phases. [Source: ICT Research Methods, DOT framework](https://v2.ictresearchmethods.nl/dot-framework/).
 
-## 3. Research Activities
+Here, analysing the supplied case is Field document analysis, not a stakeholder interview. Architecture exploration and prototyping serve Workshop purposes. Executing `EXPLAIN QUERY PLAN` serves a Lab purpose because it observes database behaviour; it does not by itself measure response-time improvement. The mapping below describes how the existing investigations support the question, rather than claiming this complete plan was recorded before development.
 
-| Research topic | Question | Method | Result |
+## 3. Sub-Questions, Methods and Intended Outcomes
+
+| ID and sub-question | DOT strategy and selected method | Why this method fits / intended outcome | Evidence, current answer and limitation |
 | --- | --- | --- | --- |
-| Club administration | Which users, processes and information are involved? | Field-oriented stakeholder and process analysis | Board members, trainers and members were identified with their required information flows. |
-| Deployment | Does cloud or self-hosted deployment fit the prototype? | Library research and trade-off analysis | Self-hosting was selected for control, predictable cost and learning value. |
-| Software structure | How can direct SQL remain maintainable? | Workshop design and architecture comparison | Responsibilities were separated into the web interface, application behavior, models and data access. |
-| Infrastructure | How can the application be deployed and recovered? | Design exploration and risk analysis | A Docker Compose design with restricted networking, persistence, backups and rollback was created. |
-| Database performance | Which queries may become bottlenecks? | Query-plan inspection and code review | Availability scans and contribution sorting were identified as optimization candidates. |
-| Operational quality | How can failures be detected and controlled? | Risk and threshold analysis | Health, performance, backup and recovery criteria were defined. |
+| SQ1: Which users, information flows and constraints must the prototype support? | Field: document analysis of the supplied case and domain modelling. Proposed follow-up: user interview and workflow observation. | Extract the club context and planning rules into requirements; check interpretation with users later. | [Project analysis](../project-analyis.md) identifies administrators, trainers, members and connected data. Based on the assignment; no interview or observation is recorded. |
+| SQ2: Which deployment approach fits the prototype's constraints? | Library: documentation research. Workshop: compare deployment alternatives against cost, control, maintenance and learning goals. | Use existing platform knowledge to justify a scoped deployment choice and identify responsibilities. | [Deployment analysis](../deployment-analysis.md) selects self-hosting. This is a qualitative choice; no measured cost comparison or operating deployment is demonstrated. |
+| SQ3: How should the software and infrastructure be structured to implement those requirements? | Workshop: architecture modelling and prototyping, informed by the assignment's C# and no-ORM constraints. | Produce a data model, responsibility boundaries and an implementable prototype. | [Software design](../design/software-design.md), [infrastructure design](../design/self-hosted-infrastructure-design.md) and [implementation](../implementation.md). SQLite is implemented; the PostgreSQL/container environment is a design. |
+| SQ4: What evidence shows the workflows behave correctly, and where might database growth cause problems? | Lab: build/startup checks and query-plan inspection. Planned: scenario tests and controlled before-and-after performance experiment. | Check executability, inspect query behaviour and define repeatable correctness and performance validation. | [Implementation](../implementation.md) records build/startup success and supplies requests, not a complete scenario-results log. [Database analysis](../database-optimization-analysis.md) reports scans and sorting, with an experiment still to run. |
+| SQ5: What controls and external review are needed before the prototype can be considered suitable for use? | Workshop: risk analysis and recovery design. Planned Field: user walkthrough. Planned Showroom: expert review against explicit quality criteria. | Define monitoring and recovery criteria, then evaluate usability and technical suitability with people outside the implementation. | [Operations plan](../operations-control-and-monitoring.md) defines controls; [communication plan](project-organisation-and-communication.md) prepares review. No completed user walkthrough, expert review or recovery exercise is claimed. |
+
+### Combining methods and using the results
+
+For match planning, SQ1 establishes the availability and field-conflict requirements from the case. SQ3 translates them into a planner and data model. SQ4 checks whether the implementation behaves as intended and whether queries may become expensive. A planned SQ5 walkthrough should establish whether a trainer can understand the result and whether the assumptions match practice. These sources answer different parts of suitability; a fast query cannot establish user acceptance.
+
+The next validation cycle should record: the requirement and expected result, the method and test conditions, the observation, the resulting decision, and a link to the changed artefact. For example, compare identical planning scenarios before and after adding an index. Keep the index only if results remain correct and the performance/storage trade-off meets the criteria in the database report. If a trainer disputes the availability rule, revise the requirement and repeat the affected checks.
+
+### Current answer to the main question
+
+The existing prototype brings the required information and workflows together using C# and direct SQL. The reports justify its structure and identify operational and performance risks. This supports technical feasibility within the supplied case. Suitability for actual club use remains provisional because user feedback, a complete behavioural test record and representative performance results are missing. Completing SQ4 and SQ5 would make that judgement stronger.
 
 ## 4. Example of Evidence-Based Exploration
 
@@ -103,3 +106,12 @@ The research can be strengthened by collecting primary stakeholder feedback and 
 ## 9. Conclusion
 
 Exploratory research was applied through problem analysis, literature and documentation research, trade-off analysis, design exploration and technical inspection. Professional reporting made the resulting decisions, evidence and limitations traceable. The next improvement is to add primary stakeholder feedback and measured before-and-after optimization results to the existing evidence.
+
+## 10. Feedback Repair and Sources
+
+In response to the LO6/LO7 feedback, this revision adds an overarching research question, five sub-questions, a strategy/method mapping, evidence links and an explicit current answer. It distinguishes case analysis from direct user research and recorded technical findings from planned validation. The improvement is traceability of the research argument; it is not evidence that the outstanding experiments have been completed.
+
+- [ICT Research Methods: DOT framework](https://v2.ictresearchmethods.nl/dot-framework/) — strategy definitions and combining methods.
+- [ICT Research Methods: Field methods](https://ictresearchmethods.nl/field/) — document analysis and domain modelling.
+- [ICT Research Methods: Showroom methods](https://v2.ictresearchmethods.nl/showroom/) — peer review and static program analysis.
+- Project evidence and its original technical sources are linked in section 3.
