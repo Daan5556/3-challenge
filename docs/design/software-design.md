@@ -1,123 +1,52 @@
-**Author:** Daan Eggen  
-**Date:** 18/07/2026  
-**Version:** 1.0
-
----
+**Author:** Daan Eggen
+**Date:** 26/09/2026
+**Version:** 2.0
 
 # Software Design: Football Club Administration
 
-## 1. Purpose
+## Scope and implementation
 
-This document designs the C# web application for managing members, contributions, teams, training sessions and matches. It communicates the main design choices and defines how they will be validated against functional, technical and aesthetic requirements.
+This document describes the implemented C# prototype. Browser routes and HTML rendering live in `Program.cs`; `ClubDatabase` executes direct SQLite SQL and coordinates planning. `ClubRules` contains pure rules that can be tested without a database. There is no ORM, repository interface, email adapter or authentication layer. Those were intentions in the original design, not delivered components.
 
-## 2. Design Requirements
-
-| Type | Requirement |
-| --- | --- |
-| Functional | Administrators can manage members, teams, contributions, fields, training sessions and matches. |
-| Functional | The system identifies overdue contributions and creates reminders. |
-| Functional | The system automatically proposes matches using player and field availability. |
-| Functional | The prototype can generate dummy members, teams and matches. |
-| Technical | The application is written in C# and stores data without an ORM. |
-| Technical | Business rules are separated from the user interface and database code. |
-| Aesthetic | The interface is clear for non-technical board members and trainers. |
-| Aesthetic | Statuses, conflicts and required actions are easy to scan. |
-
-## 3. System Context
+## C4 level 1: context
 
 ```mermaid
 flowchart LR
-    Admin[Board member] --> App[Football club administration]
-    Trainer[Trainer] --> App
-    Admin -->|Records availability| App
-    App --> Database[(Club database)]
-    App --> Mail[Email service]
+    Board[Board member / trainer] -->|View administration and submit actions| System[Football club administration]
 ```
 
-Board members maintain administration, payments and availability. Trainers manage team and planning information. The application stores club data and sends contribution reminders through an email service.
+The prototype records reminders internally; it does not connect to an external email service. Both user groups currently use the same dashboard.
 
-## 4. Application Structure
-
-The application uses a layered architecture so each responsibility can be developed and tested separately.
+## C4 level 2: containers
 
 ```mermaid
-flowchart TB
-    UI[ASP.NET Core web interface] --> Services[Application services]
-    Services --> Domain[Domain models and business rules]
-    Services --> Repositories[Repository interfaces]
-    Repositories --> SQL[ADO.NET data access]
-    SQL --> DB[(PostgreSQL database)]
-    Services --> Notifications[Notification adapter]
+flowchart LR
+    Browser[Web browser] -->|HTTP| Web[ASP.NET Core application]
+    Web -->|Direct SQL via Microsoft.Data.Sqlite| DB[(SQLite file)]
 ```
 
-| Layer | Responsibility |
-| --- | --- |
-| Web interface | Pages, input validation and role-based views. |
-| Application services | Coordinates use cases such as registering a payment or planning a match. |
-| Domain | Contains entities and rules for payments, availability and conflicts. |
-| Data access | Executes parameterized SQL through ADO.NET; no ORM is used. |
-| Notification adapter | Sends reminders without coupling the domain to one email provider. |
+SQLite is an embedded data store, not a separate database server. The application renders HTML on the server and exposes JSON at `/api/status`.
 
-## 5. Core Domain Model
+## C4 level 3: components
 
 ```mermaid
-classDiagram
-    Member "1" -- "*" TeamMembership
-    Team "1" -- "*" TeamMembership
-    Member "1" -- "*" Contribution
-    Member "1" -- "*" Availability
-    Team "1" -- "*" Training
-    Team "1" -- "*" Match
-    Field "1" -- "*" Training
-    Field "1" -- "*" Match
-
-    class Member { +int Id +string Name +MembershipStatus Status }
-    class Team { +int Id +string Name +int MinimumPlayers }
-    class TeamMembership { +date StartDate +date EndDate }
-    class Contribution { +date DueDate +date PaidDate +PaymentStatus Status }
-    class Availability { +date Start +date End +bool Available }
-    class Field { +int Id +string Name }
-    class Training { +date Start +date End }
-    class Match { +date Start +date End +MatchStatus Status }
+flowchart LR
+    Routes[Program: endpoints and HTML] --> Repository[ClubDatabase: queries and planning]
+    Repository --> Rules[ClubRules: pure rules]
+    Repository --> Models[Records: dashboard and results]
+    Repository --> Sqlite[Microsoft.Data.Sqlite]
 ```
 
-The database model will refine keys and relations. The domain model communicates the concepts and rules used by the code.
+## C4 level 4: UML code/class diagram
 
-## 6. Important Design Flows
+This diagram zooms into the application container and names the actual C# types and public operations. Async operations return `Task` or `Task<T>`. `Program` is the application entry point, and `ClubRules` is a static class.
 
-### Match Planning
+![C4 level 4: UML class diagram of the implemented C# application](diagrams/software-classes.svg)
 
-1. A trainer selects a team and planning period.
-2. The application finds times with enough available players and a free field.
-3. It excludes overlapping matches and training sessions.
-4. It presents a proposal for confirmation before saving it.
-5. If no valid option exists, the interface shows the limiting conflicts.
+The records are read models, not active database entities. `TeamId` and `MemberId` express database relationships; the records do not hold navigation objects. Fields, availability, trainings and reminders are SQL tables without separate C# entity classes. See [models](../../src/server/Models/ClubModels.cs), [rules](../../src/server/Models/ClubRules.cs) and [database code](../../src/server/Data/ClubDatabase.cs). This distinction makes the level-4 diagram different from the conceptual ERD.
 
-### Contribution Reminder
+## Behavior and trade-offs
 
-1. The application finds unpaid contributions past their due date.
-2. It prevents duplicate reminders for the same reminder period.
-3. It sends the message and records the result.
+Planning checks the next fourteen dates at 18:30 for a 90-minute match. It requires enough available members and rejects overlapping matches or training sessions for either the field or the selected team. It immediately saves the first valid slot. Reminder creation selects overdue unpaid contributions and uses a unique contribution/date constraint to prevent daily duplicates. Payment recording leaves an existing paid date intact.
 
-## 7. Interface Principles
-
-- Use consistent navigation for Members, Teams, Planning and Contributions.
-- Present searchable tables for administration tasks.
-- Use text and color together for paid, overdue, available and conflicting statuses.
-- Keep forms short, show validation next to the relevant field and request confirmation for destructive actions.
-- Support desktop and mobile widths and meet WCAG 2.2 AA contrast and keyboard-use expectations.
-
-## 8. Validation
-
-| Design aspect | Validation method | Acceptance criterion |
-| --- | --- | --- |
-| User workflows | Prototype walkthrough with a board-member or trainer role | A user can complete the main tasks without explanation. |
-| Business rules | Unit tests | Overdue payments and availability-aware planning produce the expected result. |
-| Data access | Integration tests with a test database | CRUD operations work and all SQL uses parameters. |
-| Prototype scope | Acceptance test using generated dummy data | Dummy records are created and a valid match proposal can update the database. |
-| Architecture | Code review against the layer diagram | UI and SQL code do not contain domain rules. |
-| Interface | Responsive, keyboard and contrast checks | Main tasks work at mobile and desktop widths and meet WCAG 2.2 AA checks. |
-
-## 9. Design Decision
-
-The layered ASP.NET Core design is selected because it fits the required C# prototype, supports direct SQL without an ORM, and keeps planning and payment rules independently testable. The diagrams, requirement table and validation criteria make the design discussable before and during implementation.
+The compact repository is practical for this prototype but combines SQL and orchestration. Pure rules have been extracted for unit testing. Concurrent scheduling is not transactionally protected against two simultaneous reservations; authentication, real email, CRUD screens for all entities and time-slot availability remain outside the implemented scope. See the [test plan](../test-plan.md) and [test report](../test-report.md) for verification and limitations.

@@ -1,0 +1,72 @@
+classDiagram
+    class Program
+    class ClubDatabase {
+        -string _connectionString
+        +InitializeAsync() Task
+        +SeedAsync() Task
+        +GetDashboardAsync() Task~Dashboard~
+        +RecordPaymentAsync(int contributionId) Task
+        +UpdateMembershipAsync(int memberId, int? teamId) Task
+        +CreateRemindersAsync() Task~int~
+        +PlanMatchAsync(int teamId, string opponent) Task~PlanResult~
+    }
+    class ClubRules {
+        +IsOverdue(DateOnly dueDate, DateOnly? paidDate, DateOnly today) bool
+        +HasEnoughPlayers(int available, int minimumPlayers) bool
+        +NormalizeOpponent(string opponent) string
+    }
+    class Team {
+        +int Id
+        +string Name
+        +int MinimumPlayers
+    }
+    class Member {
+        +int Id
+        +string Name
+        +string Email
+        +int? TeamId
+        +string? TeamName
+    }
+    class Contribution {
+        +int Id
+        +int MemberId
+        +string MemberName
+        +decimal Amount
+        +DateOnly DueDate
+        +DateOnly? PaidDate
+    }
+    class ScheduledMatch {
+        +int Id
+        +int TeamId
+        +string TeamName
+        +int FieldId
+        +string FieldName
+        +DateTime StartsAt
+        +string Opponent
+        +string Status
+    }
+    class Dashboard {
+        +int MemberCount
+        +int TeamCount
+        +int OverdueCount
+        +int UpcomingMatchCount
+        +IReadOnlyList~Member~ Members
+        +IReadOnlyList~Team~ Teams
+        +IReadOnlyList~Contribution~ Contributions
+        +IReadOnlyList~ScheduledMatch~ Matches
+        +IReadOnlyList~string~ Reminders
+    }
+    class PlanResult {
+        +bool Success
+        +string Message
+        +ScheduledMatch? Match
+    }
+    Program ..> ClubDatabase : injected into routes
+    ClubDatabase ..> ClubRules : evaluates
+    ClubDatabase ..> Dashboard : returns
+    ClubDatabase ..> PlanResult : returns
+    Dashboard --> "0..*" Member
+    Dashboard --> "0..*" Team
+    Dashboard --> "0..*" Contribution
+    Dashboard --> "0..*" ScheduledMatch
+    PlanResult --> "0..1" ScheduledMatch

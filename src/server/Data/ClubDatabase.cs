@@ -3,11 +3,11 @@ using Microsoft.Data.Sqlite;
 
 namespace FootballClub.Server.Data;
 
-public sealed class ClubDatabase(IWebHostEnvironment environment)
+public sealed class ClubDatabase(IWebHostEnvironment environment, IConfiguration configuration)
 {
     private readonly string _connectionString = new SqliteConnectionStringBuilder
     {
-        DataSource = Path.Combine(environment.ContentRootPath, "football-club.db"),
+        DataSource = configuration["Database:Path"] ?? Path.Combine(environment.ContentRootPath, "football-club.db"),
         ForeignKeys = true
     }.ToString();
 
@@ -110,7 +110,7 @@ public sealed class ClubDatabase(IWebHostEnvironment environment)
             await using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync()) reminders.Add(reader.GetString(0));
         }
-        return new(members.Count, teams.Count, contributions.Count(x => x.PaidDate is null && x.DueDate < DateOnly.FromDateTime(DateTime.Today)), matches.Count(x => x.StartsAt >= DateTime.Today), members, teams, contributions, matches, reminders);
+        return new(members.Count, teams.Count, contributions.Count(x => ClubRules.IsOverdue(x.DueDate, x.PaidDate, DateOnly.FromDateTime(DateTime.Today))), matches.Count(x => x.StartsAt >= DateTime.Today), members, teams, contributions, matches, reminders);
     }
 
     public async Task RecordPaymentAsync(int contributionId)
@@ -168,10 +168,11 @@ public sealed class ClubDatabase(IWebHostEnvironment environment)
             var fieldCommand = connection.CreateCommand();
             fieldCommand.CommandText = """
                 SELECT f.id,f.name FROM fields f
-                WHERE NOT EXISTS (SELECT 1 FROM matches m WHERE m.field_id=f.id AND m.starts_at < $end AND m.ends_at > $start)
-                  AND NOT EXISTS (SELECT 1 FROM trainings t WHERE t.field_id=f.id AND t.starts_at < $end AND t.ends_at > $start)
+                WHERE NOT EXISTS (SELECT 1 FROM matches m WHERE (m.field_id=f.id OR m.team_id=$team) AND m.starts_at < $end AND m.ends_at > $start)
+                  AND NOT EXISTS (SELECT 1 FROM trainings t WHERE (t.field_id=f.id OR t.team_id=$team) AND t.starts_at < $end AND t.ends_at > $start)
                 ORDER BY f.id LIMIT 1
                 """;
+            fieldCommand.Parameters.AddWithValue("$team", teamId);
             fieldCommand.Parameters.AddWithValue("$start", starts.ToString("s"));
             fieldCommand.Parameters.AddWithValue("$end", ends.ToString("s"));
             await using var fieldReader = await fieldCommand.ExecuteReaderAsync();
@@ -185,7 +186,7 @@ public sealed class ClubDatabase(IWebHostEnvironment environment)
             availableCommand.Parameters.AddWithValue("$team", teamId);
             availableCommand.Parameters.AddWithValue("$date", date.ToString("yyyy-MM-dd"));
             var available = Convert.ToInt32(await availableCommand.ExecuteScalarAsync());
-            if (available < minimumPlayers) continue;
+            if (!ClubRules.HasEnoughPlayers(available, minimumPlayers)) continue;
 
             var insert = connection.CreateCommand();
             insert.CommandText = "INSERT INTO matches(team_id,field_id,starts_at,ends_at,opponent,status) VALUES ($team,$field,$start,$end,$opponent,'Planned') RETURNING id";
@@ -193,9 +194,9 @@ public sealed class ClubDatabase(IWebHostEnvironment environment)
             insert.Parameters.AddWithValue("$field", fieldId);
             insert.Parameters.AddWithValue("$start", starts.ToString("s"));
             insert.Parameters.AddWithValue("$end", ends.ToString("s"));
-            insert.Parameters.AddWithValue("$opponent", string.IsNullOrWhiteSpace(opponent) ? "TBD" : opponent.Trim());
+            insert.Parameters.AddWithValue("$opponent", ClubRules.NormalizeOpponent(opponent));
             var id = Convert.ToInt32(await insert.ExecuteScalarAsync());
-            var match = new ScheduledMatch(id, teamId, teamName, fieldId, fieldName, starts, string.IsNullOrWhiteSpace(opponent) ? "TBD" : opponent.Trim(), "Planned");
+            var match = new ScheduledMatch(id, teamId, teamName, fieldId, fieldName, starts, ClubRules.NormalizeOpponent(opponent), "Planned");
             return new(true, $"Match planned with {available} available players.", match);
         }
         return new(false, "No slot in the next 14 days has both enough available players and a free field.");

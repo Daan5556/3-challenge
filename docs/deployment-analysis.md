@@ -62,3 +62,7 @@ Cloud deployment would be a good option for a larger or public production versio
 - Microsoft Azure App Service overview: https://learn.microsoft.com/en-us/azure/app-service/overview
 - Microsoft Azure App Service pricing: https://azure.microsoft.com/en-us/pricing/details/app-service/windows/
 - Docker Compose documentation: https://docs.docker.com/compose/
+
+## 8. Implementation follow-up (26/09/2026)
+
+The hosting comparison above records the original decision. The delivered configuration now consists of one ASP.NET Core container with SQLite on a persistent volume. See [deployment implementation](deployment-implementation.md) for the actual Dockerfile, Compose configuration, publish procedure and verification status. No public server deployment is claimed.

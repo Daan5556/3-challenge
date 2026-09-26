@@ -1,6 +1,6 @@
 **Author:** Daan Eggen  
 **Date:** 16/08/2026  
-**Version:** 1.0
+**Version:** 2.0
 
 ---
 
@@ -14,15 +14,15 @@ The server is written in C# with ASP.NET Core and stores its data in SQLite. All
 
 ## Delivered Functionality
 
-| Assignment requirement | Implementation |
-| --- | --- |
-| Generate dummy data | On first start, the application creates two teams, two fields, sixteen members, contributions, and fourteen days of availability. |
-| Plan matches automatically | The planner searches the next fourteen days and reserves the first time with enough available team members and a free field. |
-| Prevent planning conflicts | Existing matches and training sessions are checked for overlapping start and end times. |
-| Update payments | An unpaid contribution can be marked as paid from the dashboard. |
-| Update memberships | Members can be assigned to a team, moved between teams, or made unassigned. |
-| Send overdue reminders | The prototype creates a recorded reminder for each overdue contribution and prevents duplicates on the same day. |
-| Simple user interface | A responsive dashboard presents statistics, actions, matches, contributions, and memberships. |
+| Assignment requirement     | Implementation                                                                                                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generate dummy data        | On first start, the application creates two teams, two fields, sixteen members, contributions, and fourteen days of availability. Matches are created by the planning action, not by startup. |
+| Plan matches automatically | The planner searches the next fourteen days and reserves the first time with enough available team members and a free field.                                                                  |
+| Prevent planning conflicts | Existing matches and training sessions are checked for overlapping field and team bookings.                                                                                                   |
+| Update payments            | An unpaid contribution can be marked as paid from the dashboard.                                                                                                                              |
+| Update memberships         | Members can be assigned to a team, moved between teams, or made unassigned.                                                                                                                   |
+| Send overdue reminders     | The prototype creates a recorded reminder for each overdue contribution and prevents duplicates on the same day.                                                                              |
+| Simple user interface      | A responsive dashboard presents statistics, actions, matches, contributions, and memberships.                                                                                                 |
 
 ## Technical Implementation
 
@@ -52,9 +52,9 @@ The interface uses semantic tables, labelled form fields, high-contrast status i
 
 ## Verification and Result
 
-The complete solution compiled successfully with **zero warnings and zero errors**. Startup also created the SQLite schema and dummy records successfully. An HTTP request collection has been supplied for repeatable endpoint testing; its state-changing requests can be run individually and verified afterwards through `GET /api/status`.
+The application publishes successfully. Automated verification and environment warnings are recorded in the [test report](test-report.md); the earlier build-only check has been replaced with repeatable unit, integration and HTTP system checks. The HTTP request collection remains available for manual endpoint exploration.
 
-The resulting prototype meets the core assignment requirements and demonstrates C# web development, relational database design, direct SQL data access, business-rule implementation, and responsive interface design. For a production release, authentication, role-based authorization, a real email provider, audit logging, and automated unit and integration tests should be added.
+The resulting prototype meets the core assignment requirements and demonstrates C# web development, relational database design, direct SQL data access, business-rule implementation, and responsive interface design. For a production release, authentication, role-based authorization, a real email provider, audit logging, and concurrency protection for planning should be added. Automated unit, integration and HTTP system checks are now included; see the [test report](test-report.md).
 
 ## Running the Prototype
 
